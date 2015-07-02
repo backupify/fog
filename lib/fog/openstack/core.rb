@@ -306,12 +306,14 @@ module Fog
       request_body[:auth][:tenantName] = tenant_name if tenant_name
 
       response = connection.request({
-        :expects  => [200, 204],
+        :expects  => [100, 200, 204],
         :headers  => {'Content-Type' => 'application/json'},
         :body     => Fog::JSON.encode(request_body),
         :method   => 'POST',
         :path     => (uri.path and not uri.path.empty?) ? uri.path : 'v2.0'
       })
+
+      response.body = response.body.gsub(/^.*?{/m, "{") if response.status == 100
 
       Fog::JSON.decode(response.body)
     end
